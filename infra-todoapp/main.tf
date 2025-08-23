@@ -1,4 +1,4 @@
-
+# this is infra of todoapp
 module "resource_group" {
   source                  = "../modules/resource group"
   resource_group_name     = "rg-todoapp"
