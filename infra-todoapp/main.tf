@@ -12,6 +12,12 @@ module "resource_group" {
   resource_group_location = "centralindia"
 }
 
+module "resource_group" {
+  source                  = "../modules/resource group"
+  resource_group_name     = "rg-todoapp3"
+  resource_group_location = "eastus"
+}
+
 module "virtual_network" {
   depends_on = [module.resource_group]
   source     = "../modules/virtual_network"
