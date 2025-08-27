@@ -7,8 +7,11 @@ terraform {
     }
   }
 }
-
 provider "azurerm" {
   features {}
-  subscription_id = "18f8e7c5-a3db-4324-b49d-7ef07eace03f"
+  subscription_id   = var.subscription_id
+  client_id         = var.client_id
+  client_secret     = var.client_secret
+  tenant_id         = var.tenant_id
 }
+
