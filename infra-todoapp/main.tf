@@ -1,4 +1,5 @@
 
+
 module "resource_group2"{
   source                  = "../modules/resource group"
   resource_group_name     = "rg-todoapp2"
