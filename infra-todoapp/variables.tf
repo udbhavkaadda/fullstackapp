@@ -1,7 +1,16 @@
-provider "azurerm" {
-  features {}
-  client_id       = var.client_id
-  client_secret   = var.client_secret
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
+variable "client_id" {
+  description = "Azure Service Principal AppId"
+}
+
+variable "client_secret" {
+  description = "Azure Service Principal Password"
+  sensitive   = true
+}
+
+variable "subscription_id" {
+  description = "Azure Subscription ID"
+}
+
+variable "tenant_id" {
+  description = "Azure Tenant ID"
 }
