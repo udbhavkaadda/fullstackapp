@@ -1,12 +1,4 @@
-
-
-module "resource_group2"{
-  source                  = "../modules/resource group"
-  resource_group_name     = "rg-todoapp2"
-  resource_group_location = "eastus"
-}
-
-module "resource_group3" {
+module "resource_group" {
   source                  = "../modules/resource group"
   resource_group_name     = "rg-todoapp3"
   resource_group_location = "eastus"
