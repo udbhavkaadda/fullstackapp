@@ -1,20 +1,6 @@
-# this is infra of todoapp
 module "resource_group" {
   source                  = "../modules/resource group"
   resource_group_name     = "rg-todoapp"
-  resource_group_location = "centralindia"
-}
-
-
-module "resource_group1" {
-  source                  = "../modules/resource group"
-  resource_group_name     = "rg-todoapp2"
-  resource_group_location = "centralindia"
-}
-
-module "resource_group2" {
-  source                  = "../modules/resource group"
-  resource_group_name     = "rg-todoapp3"
   resource_group_location = "eastus"
 }
 
