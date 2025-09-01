@@ -187,3 +187,34 @@ module "vm_username" {
   secret_name        = "vm-username"
   secret_value       = "devopsadmin"
 }
+
+module "bastion" {
+  source               = "../modules/bastion"
+  bastion_name         = "bastion-todoapp"
+  resource_group_name  = module.resource_group.resource_group_name
+  location             = module.resource_group.resource_group_location
+  virtual_network_name = module.virtual_network.virtual_network_name
+  address_prefixes     = ["10.0.3.0/27"]
+}
+
+module "load_balancer" {
+  source              = "../modules/load_balancer"
+  lb_name             = "lb-todoapp"
+  resource_group_name = module.resource_group.resource_group_name
+  location            = module.resource_group.resource_group_location
+}
+
+
+# Associate Frontend NIC to LB backend pool
+resource "azurerm_network_interface_backend_address_pool_association" "frontend_nic_lb" {
+  network_interface_id    = module.frontend_nic.nic_id
+  ip_configuration_name   = "ipconfig1" # must match NIC ip_configuration block
+  backend_address_pool_id = module.load_balancer.bepool_id
+}
+
+# Associate Backend NIC to LB backend pool
+resource "azurerm_network_interface_backend_address_pool_association" "backend_nic_lb" {
+  network_interface_id    = module.backend_nic.nic_id
+  ip_configuration_name   = "ipconfig1" # must match NIC ip_configuration block
+  backend_address_pool_id = module.load_balancer.bepool_id
+}
