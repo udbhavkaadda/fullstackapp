@@ -27,7 +27,7 @@ stages:
       inputs:
         provider: 'azurerm'
         command: 'init'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/fullstackapp/infra-todoapp'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
         backendServiceArm: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
         backendAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
         backendAzureRmResourceGroupName: 'udbhav_rg'
