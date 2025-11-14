@@ -218,3 +218,13 @@ resource "azurerm_network_interface_backend_address_pool_association" "backend_n
   ip_configuration_name   = "ipconfig1" # must match NIC ip_configuration block
   backend_address_pool_id = module.load_balancer.bepool_id
 }
+
+module "aks" {
+  depends_on           = [module.resource_group]
+  source               = "../modules/aks"
+
+  resource_group_name  = module.resource_group.resource_group_name
+  location             = module.resource_group.resource_group_location
+  cluster_name         = "aks-todoapp"
+  dns_prefixes           = "aks-todoapp-dns"
+}
