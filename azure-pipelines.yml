@@ -35,55 +35,55 @@ stages:
         backendAzureRmContainerName: 'udbhavcontainer'
         backendAzureRmKey: 'prod.tfstate'
 
-#     - task: TerraformTask@5
-#       displayName: "Terraform Validate"
-#       inputs:
-#         provider: 'azurerm'
-#         command: 'validate'
-#         workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
-#         environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
+    - task: TerraformTask@5
+      displayName: "Terraform Validate"
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
+        environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
 
-#     - task: TerraformTask@5
-#       displayName: "Terraform Plan"
-#       inputs:
-#         provider: 'azurerm'
-#         command: 'plan'
-#         workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
-#         environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
-#         environmentAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
+    - task: TerraformTask@5
+      displayName: "Terraform Plan"
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
+        environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
+        environmentAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
 
-# # ----------------- Stage 2 -----------------
-# - stage: ManualValidation
-#   displayName: "Manual Validation"
-#   dependsOn: TerraformPlan
-#   condition: and(succeeded(), eq('${{ parameters.runApply }}', true))
-#   jobs:
-#   - job: manual_validation
-#     displayName: "Approval Required"
-#     pool: server
-#     steps:
-#     - task: ManualValidation@1
-#       displayName: "Approval Needed"
-#       inputs:
-#         notifyUsers: 'Udbhav.Chauhan@faisalec06gmail.onmicrosoft.com'
-#         approvers: 'Udbhav.Chauhan@faisalec06gmail.onmicrosoft.com'
-#         instructions: 'Please approve before applying Terraform changes.'
+# ----------------- Stage 2 -----------------
+- stage: ManualValidation
+  displayName: "Manual Validation"
+  dependsOn: TerraformPlan
+  condition: and(succeeded(), eq('${{ parameters.runApply }}', true))
+  jobs:
+  - job: manual_validation
+    displayName: "Approval Required"
+    pool: server
+    steps:
+    - task: ManualValidation@1
+      displayName: "Approval Needed"
+      inputs:
+        notifyUsers: 'Udbhav.Chauhan@faisalec06gmail.onmicrosoft.com'
+        approvers: 'Udbhav.Chauhan@faisalec06gmail.onmicrosoft.com'
+        instructions: 'Please approve before applying Terraform changes.'
 
-# # ----------------- Stage 3 -----------------
-# - stage: TerraformApply
-#   displayName: "Terraform Apply"
-#   dependsOn: ManualValidation
-#   condition: and(succeeded(), eq('${{ parameters.runApply }}', true))
-#   jobs:
-#   - job: terraform_apply
-#     displayName: "Terraform Apply Job"
-#     steps: 
-#     - task: TerraformTask@5
-#       displayName: "Terraform Apply"
-#       inputs:
-#         provider: 'azurerm'
-#         command: 'apply'
-#         workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
-#         environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
-#         environmentAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
-#         commandOptions: '-auto-approve'
+# ----------------- Stage 3 -----------------
+- stage: TerraformApply
+  displayName: "Terraform Apply"
+  dependsOn: ManualValidation
+  condition: and(succeeded(), eq('${{ parameters.runApply }}', true))
+  jobs:
+  - job: terraform_apply
+    displayName: "Terraform Apply Job"
+    steps: 
+    - task: TerraformTask@5
+      displayName: "Terraform Apply"
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
+        environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
+        environmentAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
+        commandOptions: '-auto-approve'
