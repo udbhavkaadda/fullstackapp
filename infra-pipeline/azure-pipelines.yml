@@ -20,7 +20,7 @@ stages:
     - task: TerraformInstaller@1
       displayName: "Install Terraform"
       inputs:
-        terraformVersion: '1.3.9'
+        terraformVersion: 'latest'
 
     - task: TerraformTask@5
       displayName: "Terraform Init"
@@ -28,9 +28,9 @@ stages:
         provider: 'azurerm'
         command: 'init'
         workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
-        backendServiceArm: 'Azure-subscription-Udbhav'
-        backendAzureRmOverrideSubscriptionID: '18f8e7c5-a3db-4324-b49d-7ef07eace03f'
-        backendAzureRmResourceGroupName: 'udbhav'
+        backendServiceArm: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
+        backendAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
+        backendAzureRmResourceGroupName: 'udbhav_rg'
         backendAzureRmStorageAccountName: 'udbhavstorage'
         backendAzureRmContainerName: 'udbhavcontainer'
         backendAzureRmKey: 'prod.tfstate'
@@ -41,7 +41,7 @@ stages:
         provider: 'azurerm'
         command: 'validate'
         workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
-        environmentServiceNameAzureRM: 'Azure-subscription-Udbhav'
+        environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
 
     - task: TerraformTask@5
       displayName: "Terraform Plan"
@@ -49,8 +49,8 @@ stages:
         provider: 'azurerm'
         command: 'plan'
         workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
-        environmentServiceNameAzureRM: 'Azure-subscription-Udbhav'
-        environmentAzureRmOverrideSubscriptionID: '18f8e7c5-a3db-4324-b49d-7ef07eace03f'
+        environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
+        environmentAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
 
 # ----------------- Stage 2 -----------------
 - stage: ManualValidation
@@ -65,8 +65,8 @@ stages:
     - task: ManualValidation@1
       displayName: "Approval Needed"
       inputs:
-        notifyUsers: 'udbhav.chauhan@avinashsimpaloutlook.onmicrosoft.com'
-        approvers: 'udbhav.chauhan@avinashsimpaloutlook.onmicrosoft.com'
+        notifyUsers: 'Udbhav.Chauhan@faisalec06gmail.onmicrosoft.com'
+        approvers: 'Udbhav.Chauhan@faisalec06gmail.onmicrosoft.com'
         instructions: 'Please approve before applying Terraform changes.'
 
 # ----------------- Stage 3 -----------------
@@ -84,6 +84,6 @@ stages:
         provider: 'azurerm'
         command: 'apply'
         workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
-        environmentServiceNameAzureRM: 'Azure-subscription-Udbhav'
-        environmentAzureRmOverrideSubscriptionID: '18f8e7c5-a3db-4324-b49d-7ef07eace03f'
+        environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
+        environmentAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
         commandOptions: '-auto-approve'
