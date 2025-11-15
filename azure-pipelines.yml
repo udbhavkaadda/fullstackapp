@@ -1,17 +1,24 @@
-trigger: none
+trigger: 
+- feature/*
+- main
 
 name: todo-infra
 pool: groupofagents
 
 parameters:
-- name: runApply
-  displayName: "Run Terraform Apply (after approval)"
-  type: boolean
-  default: false
+- name: environment
+  displayName: Environment(dev/prod)
+  type: string
+  values: 
+  - dev
+  - prod
+
+variables:
+  workDir: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}'
 
 stages:
 # ----------------- Stage 1 -----------------
-- stage: TerraformPlan
+- stage: Build
   displayName: "Terraform Init, Validate & Plan"
   jobs:
   - job: terraformbasicworkflow
@@ -53,6 +60,27 @@ stages:
         environmentAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
 
 # ----------------- Stage 2 -----------------
+- stage: Scanning
+  displayName: Scanning
+  jobs: 
+  - job: TFSecScanningJob
+    displayName: TFSEC Scanning Wala Job
+    pool: agents-ka-jhund
+    steps:
+    - task: tfsec@1
+      inputs:
+        version: 'v1.26.0'
+        dir: $(workDir)
+
+  - job: TfLintScanningJob
+    displayName: TFLINT Scanning Wala Job
+    pool: agents-ka-jhund
+    steps:
+    - task: CmdLine@2
+      inputs:
+        script: 'echo Hello world'
+
+# ----------------- Stage 3 -----------------
 - stage: ManualValidation
   displayName: "Manual Validation"
   dependsOn: TerraformPlan
@@ -70,7 +98,7 @@ stages:
         instructions: 'Please approve before applying Terraform changes.'
 
 # ----------------- Stage 3 -----------------
-- stage: TerraformApply
+- stage: deploy
   displayName: "Terraform Apply"
   dependsOn: ManualValidation
   condition: and(succeeded(), eq('${{ parameters.runApply }}', true))
