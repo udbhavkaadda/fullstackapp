@@ -19,7 +19,7 @@ variables:
 stages:
 # ----------------- Stage 1 -----------------
 - stage: Build
-  displayName: "Terraform Init, Validate & Plan"
+  displayName: "Build"
   jobs:
   - job: terraformbasicworkflow
     displayName: "Terraform Workflow"
@@ -65,7 +65,7 @@ stages:
   jobs: 
   - job: TFSecScanningJob
     displayName: TFSEC Scanning Wala Job
-    pool: agents-ka-jhund
+    pool: groupofagents
     steps:
     - task: tfsec@1
       inputs:
@@ -74,7 +74,7 @@ stages:
 
   - job: TfLintScanningJob
     displayName: TFLINT Scanning Wala Job
-    pool: agents-ka-jhund
+    pool: groupofagents
     steps:
     - task: CmdLine@2
       inputs:
@@ -98,8 +98,8 @@ stages:
         instructions: 'Please approve before applying Terraform changes.'
 
 # ----------------- Stage 3 -----------------
-- stage: deploy
-  displayName: "Terraform Apply"
+- stage: Deploy
+  displayName: "Deploy"
   dependsOn: ManualValidation
   condition: and(succeeded(), eq('${{ parameters.runApply }}', true))
   jobs:
