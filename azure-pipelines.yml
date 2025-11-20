@@ -103,8 +103,8 @@ stages:
         instructions: 'Please approve before applying Terraform changes.'
 
 # ----------------- Stage 3 -----------------
-- stage: Deploy
-  displayName: "Deploy"
+- stage: TerraformApply
+  displayName: "TerraformApply"
   dependsOn: Manual Validation
   condition: and(succeeded(), eq('${{ parameters.runApply }}', true))
   jobs:
