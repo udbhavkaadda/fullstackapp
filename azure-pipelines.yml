@@ -55,14 +55,17 @@ stages:
               backendAzureRmStorageAccountName: '$(backendStorageAccount)'
               backendAzureRmContainerName: '$(backendContainer)'
               backendAzureRmKey: '$(backendKey)'
-          - task: TerraformTask@5
+
+          - task: Bash@3
+            displayName: "Terraform FMT (Auto Fix)"
             inputs:
-              provider: 'azurerm'
-              command: 'custom'
-              outputTo: 'console'
-              customCommand: 'fmt'
-              environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
-              environmentAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
+              targetType: 'inline'
+              script: |
+                echo "Auto-formatting Terraform files..."
+                cd $(System.DefaultWorkingDirectory)/infra-todoapp
+                terraform fmt -recursive
+                echo "✔ Formatting completed."
+
           - task: TerraformTask@5
             displayName: "Terraform Validate"
             inputs:
