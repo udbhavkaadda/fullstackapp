@@ -102,8 +102,6 @@ stages:
       if (-Not (Get-Command tflint.exe -ErrorAction SilentlyContinue)) {
         Invoke-WebRequest -Uri $tflintUrl -OutFile $zipPath
         Expand-Archive -Path $zipPath -DestinationPath $env:TEMP -Force
-        Move-Item "$env:TEMP\tflint.exe" "C:\tflint.exe" -Force
-        $env:PATH += ";C:\tflint.exe"
       }
 
       cd "$(System.DefaultWorkingDirectory)\infra-todoapp"
