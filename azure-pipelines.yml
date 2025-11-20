@@ -12,6 +12,10 @@ parameters:
   values: 
   - dev
   - prod
+- name: runApply
+  displayName: "Run Terraform Apply (after approval)"
+  type: boolean
+  default: false
 
 variables:
   workDir: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}'
