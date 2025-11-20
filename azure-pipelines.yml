@@ -54,15 +54,6 @@ stages:
         workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
         environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
 
-    - task: TerraformTask@5
-      displayName: "Terraform Plan"
-      inputs:
-        provider: 'azurerm'
-        command: 'plan'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
-        environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
-        environmentAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
-
 # ----------------- Stage 2 -----------------
 - stage: Scanning
   displayName: Scanning
@@ -83,6 +74,16 @@ stages:
     - task: CmdLine@2
       inputs:
         script: 'echo Hello world'
+
+    - task: TerraformTask@5
+      displayName: "Terraform Plan"
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/infra-todoapp'
+        environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
+        environmentAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
+
 
 # ----------------- Stage 3 -----------------
 - stage: ManualValidation
