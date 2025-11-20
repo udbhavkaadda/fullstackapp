@@ -89,28 +89,26 @@ stages:
         displayName: "tflint + plan"
         pool: groupofagents
         steps:
-          - task: Bash@3
-            displayName: "Run TFLint"
+          - task: PowerShell@2
+            displayName: "Run TFLint (Windows)"
             inputs:
-              targetType: 'inline'
+              targetType: inline
               script: |
-                echo "Installing & Running TFLint..."
+                  Write-Host "Installing & Running TFLint..."
 
-      # Install TFLint if missing
-        if ! command -v tflint >/dev/null 2>&1; then
-        echo "Downloading TFLint..."
-        curl -sSLf https://github.com/terraform-linters/tflint/releases/latest/download/tflint_linux_amd64.zip -o /tmp/tflint.zip
-        unzip -o /tmp/tflint.zip -d /tmp
-        sudo mv /tmp/tflint /usr/local/bin/tflint
-        chmod +x /usr/local/bin/tflint
-      fi
+                  $tflintUrl = "https://github.com/terraform-linters/tflint/releases/latest/download/tflint_windows_amd64.zip"
+                  $zipPath = "$env:TEMP\tflint.zip"
 
-      cd $(System.DefaultWorkingDirectory)/infra-todoapp
+      if (-Not (Get-Command tflint.exe -ErrorAction SilentlyContinue)) {
+        Invoke-WebRequest -Uri $tflintUrl -OutFile $zipPath
+        Expand-Archive -Path $zipPath -DestinationPath $env:TEMP -Force
+        Move-Item "$env:TEMP\tflint.exe" "C:\tflint.exe" -Force
+        $env:PATH += ";C:\"
+      }
 
-      echo "Initializing TFLint plugins..."
+      cd "$(System.DefaultWorkingDirectory)\infra-todoapp"
+
       tflint --init
-
-      echo "Running TFLint scan..."
       tflint
 
           - task: TerraformTask@5
