@@ -55,7 +55,14 @@ stages:
               backendAzureRmStorageAccountName: '$(backendStorageAccount)'
               backendAzureRmContainerName: '$(backendContainer)'
               backendAzureRmKey: '$(backendKey)'
-
+          - task: TerraformTask@5
+            inputs:
+              provider: 'azurerm'
+              command: 'custom'
+              outputTo: 'console'
+              customCommand: 'fmt'
+              environmentServiceNameAzureRM: 'Azure subscription 1(02fc6674-9e4d-4764-8702-0c4550e06df7)'
+              environmentAzureRmOverrideSubscriptionID: '02fc6674-9e4d-4764-8702-0c4550e06df7'
           - task: TerraformTask@5
             displayName: "Terraform Validate"
             inputs:
@@ -63,95 +70,95 @@ stages:
               command: 'validate'
               workingDirectory: '$(workDir)'
               environmentServiceNameAzureRM: '$(azureSubscriptionServiceConnection)'
+          
+  # # ----------------- Stage 2 -----------------
+  # - stage: Scanning
+  #   displayName: "Scanning"
+  #   dependsOn: Build
+  #   jobs:
+  #     - job: TFSecScanningJob
+  #       displayName: "tfsec scan"
+  #       pool: groupofagents
+  #       steps:
+  #         # Install tfsec (if not preinstalled) and run it against infra folder
+  #         - task: Bash@3
+  #           displayName: "Run tfsec"
+  #           inputs:
+  #             targetType: 'inline'
+  #             script: |
+  #               echo "Running tfsec..."
+  #               # install tfsec if not available (linux agent)
+  #               if ! command -v tfsec >/dev/null 2>&1; then
+  #                 curl -sSLf https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+  #               fi
+  #               tfsec $(workDir)
 
-  # ----------------- Stage 2 -----------------
-  - stage: Scanning
-    displayName: "Scanning"
-    dependsOn: Build
-    jobs:
-      - job: TFSecScanningJob
-        displayName: "tfsec scan"
-        pool: groupofagents
-        steps:
-          # Install tfsec (if not preinstalled) and run it against infra folder
-          - task: Bash@3
-            displayName: "Run tfsec"
-            inputs:
-              targetType: 'inline'
-              script: |
-                echo "Running tfsec..."
-                # install tfsec if not available (linux agent)
-                if ! command -v tfsec >/dev/null 2>&1; then
-                  curl -sSLf https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
-                fi
-                tfsec $(workDir)
+  #     - job: TfLintScanningJob
+  #       displayName: "tflint + plan"
+  #       pool: groupofagents
+  #       steps:
+  #         - task: Bash@3
+  #           displayName: "Run tflint"
+  #           inputs:
+  #             targetType: 'inline'
+  #             script: |
+  #               echo "Running tflint..."
+  #               # install tflint if missing
+  #               if ! command -v tflint >/dev/null 2>&1; then
+  #                 curl -sSLf https://github.com/terraform-linters/tflint/releases/latest/download/tflint_linux_amd64.zip -o /tmp/tflint.zip
+  #                 unzip -o /tmp/tflint.zip -d /tmp
+  #                 sudo mv /tmp/tflint /usr/local/bin/tflint
+  #               fi
+  #               cd $(workDir)
+  #               tflint --init || true
+  #               tflint
 
-      - job: TfLintScanningJob
-        displayName: "tflint + plan"
-        pool: groupofagents
-        steps:
-          - task: Bash@3
-            displayName: "Run tflint"
-            inputs:
-              targetType: 'inline'
-              script: |
-                echo "Running tflint..."
-                # install tflint if missing
-                if ! command -v tflint >/dev/null 2>&1; then
-                  curl -sSLf https://github.com/terraform-linters/tflint/releases/latest/download/tflint_linux_amd64.zip -o /tmp/tflint.zip
-                  unzip -o /tmp/tflint.zip -d /tmp
-                  sudo mv /tmp/tflint /usr/local/bin/tflint
-                fi
-                cd $(workDir)
-                tflint --init || true
-                tflint
+  #         - task: TerraformTask@5
+  #           displayName: "Terraform Plan"
+  #           inputs:
+  #             provider: 'azurerm'
+  #             command: 'plan'
+  #             workingDirectory: '$(workDir)'
+  #             environmentServiceNameAzureRM: '$(azureSubscriptionServiceConnection)'
+  #             environmentAzureRmOverrideSubscriptionID: '$(subscriptionId)'
+  #             # Save plan to file so apply can be run from it (optional)
+  #             commandOptions: '-out=tfplan.binary'
 
-          - task: TerraformTask@5
-            displayName: "Terraform Plan"
-            inputs:
-              provider: 'azurerm'
-              command: 'plan'
-              workingDirectory: '$(workDir)'
-              environmentServiceNameAzureRM: '$(azureSubscriptionServiceConnection)'
-              environmentAzureRmOverrideSubscriptionID: '$(subscriptionId)'
-              # Save plan to file so apply can be run from it (optional)
-              commandOptions: '-out=tfplan.binary'
+  # # ----------------- Stage 3 -----------------
+  # - stage: ManualValidation
+  #   displayName: "Manual Validation"
+  #   dependsOn: Scanning
+  #   condition: and(succeeded(), eq(${{ parameters.runApply }}, true))
+  #   jobs:
+  #     - job: manual_validation
+  #       displayName: "Approval Required"
+  #       pool: server
+  #       steps:
+  #         - task: ManualValidation@1
+  #           displayName: "Approval Needed"
+  #           inputs:
+  #             notifyUsers: 'Udbhav.Chauhan@faisalec06gmail.onmicrosoft.com'
+  #             approvers: 'Udbhav.Chauhan@faisalec06gmail.onmicrosoft.com'
+  #             instructions: 'Please approve before applying Terraform changes.'
 
-  # ----------------- Stage 3 -----------------
-  - stage: ManualValidation
-    displayName: "Manual Validation"
-    dependsOn: Scanning
-    condition: and(succeeded(), eq(${{ parameters.runApply }}, true))
-    jobs:
-      - job: manual_validation
-        displayName: "Approval Required"
-        pool: server
-        steps:
-          - task: ManualValidation@1
-            displayName: "Approval Needed"
-            inputs:
-              notifyUsers: 'Udbhav.Chauhan@faisalec06gmail.onmicrosoft.com'
-              approvers: 'Udbhav.Chauhan@faisalec06gmail.onmicrosoft.com'
-              instructions: 'Please approve before applying Terraform changes.'
-
-  # ----------------- Stage 4 -----------------
-  - stage: Deploy
-    displayName: "Deploy"
-    dependsOn: ManualValidation
-    condition: and(succeeded(), eq(${{ parameters.runApply }}, true))
-    jobs:
-      - job: terraform_apply
-        displayName: "Terraform Apply Job"
-        pool: groupofagents
-        steps:
-          - task: TerraformTask@5
-            displayName: "Terraform Apply (using saved plan if present)"
-            inputs:
-              provider: 'azurerm'
-              command: 'apply'
-              workingDirectory: '$(workDir)'
-              environmentServiceNameAzureRM: '$(azureSubscriptionServiceConnection)'
-              environmentAzureRmOverrideSubscriptionID: '$(subscriptionId)'
-              # If you used -out=tfplan.binary during plan, you can use: -auto-approve tfplan.binary
-              # But many versions expect a plan file with -input=false -auto-approve
-              commandOptions: '-auto-approve'
+  # # ----------------- Stage 4 -----------------
+  # - stage: Deploy
+  #   displayName: "Deploy"
+  #   dependsOn: ManualValidation
+  #   condition: and(succeeded(), eq(${{ parameters.runApply }}, true))
+  #   jobs:
+  #     - job: terraform_apply
+  #       displayName: "Terraform Apply Job"
+  #       pool: groupofagents
+  #       steps:
+  #         - task: TerraformTask@5
+  #           displayName: "Terraform Apply (using saved plan if present)"
+  #           inputs:
+  #             provider: 'azurerm'
+  #             command: 'apply'
+  #             workingDirectory: '$(workDir)'
+  #             environmentServiceNameAzureRM: '$(azureSubscriptionServiceConnection)'
+  #             environmentAzureRmOverrideSubscriptionID: '$(subscriptionId)'
+  #             # If you used -out=tfplan.binary during plan, you can use: -auto-approve tfplan.binary
+  #             # But many versions expect a plan file with -input=false -auto-approve
+  #             commandOptions: '-auto-approve'
