@@ -136,8 +136,32 @@ stages:
               notifyUsers: 'Udbhav.Chauhan@faisalec06gmail.onmicrosoft.com'
               approvers: 'Udbhav.Chauhan@faisalec06gmail.onmicrosoft.com'
               instructions: 'Please approve before applying Terraform changes.'
+              
+# ----------------- Stage 4-----------------          
+- stage: Build
 
-  # ----------------- Stage 4 -----------------
+- stage: Approval
+  jobs:
+  - job: WaitForApproval
+    pool: server
+    steps:
+    - task: ManualValidation@0
+      inputs:
+        notifyUsers: |
+          lead@company.com
+        instructions: 'Approve deployment'
+        onTimeout: reject
+
+- stage: Deploy
+  dependsOn: Approval
+  jobs:
+  - job: Deploy
+    steps:
+    - script: echo "Deploy Started"
+
+
+
+  # ----------------- Stage 5-----------------
   - stage: Deploy
     displayName: "Deploy"
     dependsOn: ManualValidation
